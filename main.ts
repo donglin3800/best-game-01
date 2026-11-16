@@ -25,8 +25,31 @@ if (!fs.existsSync(gameSource)) fail('game/: no such directory in this repositor
 if (!fs.existsSync(shotsSource)) fail('screenshots/: no such directory in this repository');
 
 // Start from a clean output directory so a second run writes the same bytes.
-fs.rmSync(outputDir, { recursive: true, force: true });
+// Never remove the output directory itself: in the grader it is a mounted
+// volume whose parent is not writable by the user running this script, so
+// deleting it fails with EACCES. Clear only its contents instead, and make
+// each entry writable first: the grader's repo is read-only, so files copied
+// from it keep read-only modes and cannot be removed otherwise.
+function removeTree(entryPath: string): void {
+  const stat = fs.lstatSync(entryPath);
+  if (stat.isDirectory()) {
+    // Writable first: children cannot be unlinked while the directory is
+    // read-only.
+    fs.chmodSync(entryPath, 0o755);
+    for (const child of fs.readdirSync(entryPath)) {
+      removeTree(path.join(entryPath, child));
+    }
+    fs.rmdirSync(entryPath);
+  } else {
+    fs.chmodSync(entryPath, 0o644);
+    fs.rmSync(entryPath, { force: true });
+  }
+}
+
 fs.mkdirSync(outputDir, { recursive: true });
+for (const entry of fs.readdirSync(outputDir)) {
+  removeTree(path.join(outputDir, entry));
+}
 
 fs.cpSync(gameSource, path.join(outputDir, 'game'), { recursive: true });
 fs.cpSync(shotsSource, path.join(outputDir, 'screenshots'), { recursive: true });
