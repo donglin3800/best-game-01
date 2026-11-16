@@ -1,0 +1,44 @@
+/* Emberward — page chrome. The game itself is drawn on the canvas; this
+   file only centers it on a dark page and keeps its 16:9 shape. */
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: #05060f;
+  color: #e8ecff;
+  font-family: Georgia, 'Times New Roman', serif;
+}
+
+.stage {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 12px;
+}
+
+#game {
+  display: block;
+  width: min(1280px, 100vw - 24px);
+  height: auto;
+  aspect-ratio: 16 / 9;
+  background: #0b1030;
+  border: 1px solid rgba(255, 210, 110, 0.35);
+  border-radius: 6px;
+  cursor: crosshair;
+  box-shadow: 0 0 60px rgba(255, 180, 60, 0.12), 0 0 120px rgba(80, 90, 255, 0.12);
+}
+
+.hint {
+  margin: 0;
+  font-size: 14px;
+  letter-spacing: 0.04em;
+  color: #8fa0c8;
+}
